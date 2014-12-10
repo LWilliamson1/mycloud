@@ -38,10 +38,12 @@ int main(int argc, char **argv)
         printf("server connected to %s (%s)\n", hp->h_name, haddrp);
         
         unsigned int request_type;
-		int bytes_received;
-		bytes_received = Rio_readn(connfd, &secret_key, sizeof(unsigned int));
-		secret_key = ntohl(secret_key);
-		bytes_received = Rio_readn(connfd, &request_type, sizeof(unsigned int));
+	int bytes_received;
+	bytes_received = Rio_readn(connfd, &secret_key, sizeof(unsigned int));
+	secret_key = ntohl(secret_key);
+	printf("Secret Key = %i\n", secret_key);	
+	
+	bytes_received = Rio_readn(connfd, &request_type, sizeof(unsigned int));
         int status = 0;
         request_type = ntohl(request_type);
         if (secret_key != server_secret_key) {
