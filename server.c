@@ -1,14 +1,11 @@
 // server.c
 // Created by Larry Williamson and Grant Garrett on 12/8/14.
-
-
 #include "csapp.h"
 
 
 void echo(int connfd);
 
 int main(int argc, char **argv)
-
 {
     int listenfd, connfd, port;
     unsigned int server_secret_key, secret_key;
@@ -29,26 +26,6 @@ int main(int argc, char **argv)
     server_secret_key = atoi(argv[2]);
     listenfd = Open_listenfd(port);
 
-
-    
- /*
-    int i = 0;
-    clientlen = sizeof(clientaddr);
-    connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
-read:
-    Rio_writen(connfd, "secret key=",11);
-    Rio_readinitb(&rio, connfd);
-    n = Rio_readlineb(&rio, buf, MAXLINE);
-    if(atoi(buf)==secret_key){
-        printf("correct\n");
-        Rio_writen(connfd, buf, n);
-    }
-    else{Rio_writen(connfd, buf, n);goto read;}
-    //    Close(connfd);
-*/
-
-
-
     while (1) {
         clientlen = sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
@@ -61,40 +38,36 @@ read:
         printf("server connected to %s (%s)\n", hp->h_name, haddrp);
         
         unsigned int request_type;
-	int bytes_received;
-        
-	bytes_received = Rio_readn(connfd, &secret_key, sizeof(unsigned int));
-	printf("secret_key = %i\n", ntohl(secret_key));
-	secret_key = ntohl(secret_key);
-	bytes_received = Rio_readn(connfd, &request_type, sizeof(unsigned int));
-	printf("%i\n", ntohl(request_type));
+		int bytes_received;
+		bytes_received = Rio_readn(connfd, &secret_key, sizeof(unsigned int));
+		secret_key = ntohl(secret_key);
+		bytes_received = Rio_readn(connfd, &request_type, sizeof(unsigned int));
         int status = 0;
         request_type = ntohl(request_type);
         if (secret_key != server_secret_key) {
             status = -1;
         }
-            if (request_type == 0){
-                printf("Request Type = get\n");
-                if (status == 0)
-                status = get(connfd);
-            }
-            else if (request_type == 1 && status == 0){
-                printf("Request Type = put\n");
-                if (status == 0)
-                status = put(connfd);
-            }
-            else if (request_type == 2 && status == 0){
-                printf("Request Type = del\n");
-                if (status == 0)
-                status = del(connfd);
-            }
-            else if (request_type == 3 && status == 0){
-                printf("Request Type = list\n");
-                if (status == 0){
-                    status = list(connfd);
-                }
-            
-            write(connfd, &status, sizeof(status));
+		if (request_type == 0){
+			printf("Request Type = get\n");
+			if (status == 0)
+			status = get(connfd);
+		}
+		else if (request_type == 1 && status == 0){
+			printf("Request Type = put\n");
+			if (status == 0)
+			status = put(connfd);
+		}
+		else if (request_type == 2 && status == 0){
+			printf("Request Type = del\n");
+			if (status == 0)
+			status = del(connfd);
+		}
+		else if (request_type == 3 && status == 0){
+			printf("Request Type = list\n");
+			if (status == 0){
+				status = list(connfd);
+			}
+		write(connfd, &status, sizeof(status));
         }
         if (status == 0){
             printf("Operation Status = Success\n");    
@@ -124,7 +97,6 @@ int get(connfd){
     while (1) {
         unsigned char buf[100240]={0};
         int data = fread(buf,1,sizeof(buf), fp);
-        
         
         if(data > 0)
         {
