@@ -32,21 +32,33 @@ int main(int argc, char **argv)
 
 	Rio_writen(clientfd, filename, 80);
 	
+	/*
 	while((bytesSent = Rio_writen(clientfd, buff, BUF_SIZE)) > 0)
 	{
 		fwrite(buff, 1, bytesSent, stdin);
 	}
+	*/
+	
+	do
+	{
+		fwrite(buff, 1, BUF_SIZE, stdin);
+		Rio_writen(clientfd, buff, BUF_SIZE);
+	}
+	while (!feof(stdin));
 
 	unsigned int status;
 	Rio_readn(clientfd, &status, sizeof(unsigned int));
 	if (status != 0){
 		printf("Error\n");
 	}
+
+	/*
 	if(bytesReceived < 0)
 	{
 		printf("Error\n");
 		return -1;
 	}
+	*/
 	Close(clientfd);
 	exit(0);
 }
