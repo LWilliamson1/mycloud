@@ -34,15 +34,15 @@ int main(int argc, char **argv)
 	Rio_writen(clientfd, &secretKey, sizeof(unsigned int));
 
 	Rio_writen(clientfd, &requestType, sizeof(unsigned int));
-	
-	printf("%i\n", requestType);
 
 	Rio_writen(clientfd, filename, 80);
 
 	while((bytesReceived = Rio_readn(clientfd, buff, BUF_SIZE)) > 0)
 	{
 		fwrite(buff, 1, bytesReceived, fp);
+		Fputs(buff, stdout);
 	}
+	Fputs("\n", stdout);
 	unsigned int status;
 	Rio_readn(clientfd, &status, sizeof(unsigned int));
 		if (status != 0){
