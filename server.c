@@ -2,6 +2,7 @@
 // Created by Larry Williamson and Grant Garrett on 12/8/14.
 #include "csapp.h"
 
+char files[20][80]={""};
 
 void echo(int connfd);
 
@@ -46,7 +47,6 @@ int main(int argc, char **argv)
 	bytes_received = Rio_readn(connfd, &request_type, sizeof(unsigned int));
         int status = 0;
         request_type = ntohl(request_type);
-       	printf("rt = %i\n", request_type);
 	 if (secret_key != server_secret_key) {
             status = -1;
         }
@@ -127,13 +127,34 @@ int put(connfd){
         //memset(buff, '0', sizeof(buff));
        // FILE *fp = fopen(filename, "w");
       //  ssize_t bytes_received; 
-	int status = 0;; 
+	int status = 0; 
 
 	bytes_received = Rio_readn(connfd, buff, 80);
         FILE *fp = fopen(buff, "w");
         if(fp==NULL){status = -1;}
 	printf("Filename = %s\n", buff);
-	Rio_readinitb(&rio, connfd);
+
+
+        int i = 0;
+
+        while(i < 20)
+        {
+		//printf("strlen = %i\n",(int)strlen(files[i]));
+                if(strlen(files[i]) == 0)
+                {
+			strcpy(files[i], buff);
+			//printf("file: %s\n",files[i]);
+			break;
+                }
+		i++;
+        }
+
+/*	unsigned int size, bytes;
+	bytes = Rio_readn(connfd, &size, sizeof(unsigned int));
+	printf("size: %i\n", size);
+	size = ntohl(size);
+	printf("size: %i\n", size);
+	Rio_readinitb(&rio, connfd);*/
 /*
 	if(NULL == fp)
         {
@@ -145,24 +166,64 @@ int put(connfd){
         //Rio_writen(clientfd, &requestType, sizeof(unsigned int));
 
         //Rio_writen(clientfd, filename, 80); */
-	char buff2[MAXLINE];
+
+/*	char buff2[MAXLINE];
         while((bytes_received = Rio_readnb(&rio, buff2, 1)) > 0)
         {
+
+		bytes_received = Rio_readnb(&rio, buff2, 1);
+		printf("rio readn = %i\n", bytes_received);
 	//	printf("Buff: %s\n", buff);
 	//	Rio_readn(connfd, buff, MAXLINE);
                 fwrite(buff2, 1, 1 , fp);
                 Fputs(buff2, stdout);
 		fflush(stdout);
-        }
-	printf("After While");	
+	}
+*/	
+	printf("After While\n");	
+	fclose(fp);
 	return 0;
 }
 
 int del(connfd){
-	return 0;
+	int status =0;
+	char buff[MAXLINE];
+	int bytes_received = Rio_readn(connfd, buff, 80);
+	printf("buff =  %s\n",buff);
+	if(remove(buff) != 0){
+		status = -1;
+	}
+
+	int i = 0;
+	while(i < 20){
+		if(strcmp(files[i], buff) == 0){
+			strcpy(files[i], "");
+			break;
+		}
+		i++;
+	}
+	int index = i;
+	while(index+1<20){
+		strcpy(files[index], files[index+1]);
+		index++;
+	}
+	return status;
 }
 
 int list(connfd){
+	int i, status;
+	char buff[MAXLINE];
+	i = 0;
+	while(strlen(files[i]) != 0 && i < 20)
+	{
+		printf("%s\n", files[i]);
+		Rio_writen(connfd, files[i], strlen(files[i]));
+		Rio_writen(connfd, "\n", strlen("\n"));
+		i++;
+	}
+
 	return 0;
 }
+
+
 
