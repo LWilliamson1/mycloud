@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 	host = argv[1];
 	port = atoi(argv[2]);
 	unsigned int secretKey = htonl(atoi(argv[3]));
-	unsigned int requestType = 1;
+	unsigned int requestType = htonl(1);
 	strcpy(filename, argv[4]);
 	clientfd = Open_clientfd(host, port);
 
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 
 	int bytesSent = 0;
 	char buff[BUF_SIZE];
-	memset(buff, '0', sizeof(buff));
+	//memset(buff, '0', sizeof(buff));
 
 	Rio_writen(clientfd, &secretKey, sizeof(unsigned int));
 
@@ -38,13 +38,11 @@ int main(int argc, char **argv)
 		fwrite(buff, 1, bytesSent, stdin);
 	}
 	*/
-	
-	do
+
+	while (fgets(buff, BUF_SIZE, stdin) != NULL)
 	{
-		fwrite(buff, 1, BUF_SIZE, stdin);
-		Rio_writen(clientfd, buff, BUF_SIZE);
+		Rio_writen(clientfd, buff, strlen(buff));
 	}
-	while (!feof(stdin));
 
 	unsigned int status;
 	Rio_readn(clientfd, &status, sizeof(unsigned int));

@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 
 	int bytesReceived = 0;
 	char buff[BUF_SIZE];
-	memset(buff, '0', sizeof(buff));
+	memset(buff, '\0', sizeof(buff));
 	FILE *fp = fopen(filename, "w");
 	if(NULL == fp)
 	{
