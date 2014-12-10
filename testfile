@@ -678,7 +678,7 @@ ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen)
 /**********************************
  * Wrappers for robust I/O routines
  **********************************/
-ssize_t Rio_readn(int fd, void *ptr, size_t nbytes) 
+ssize_t Rio_	(int fd, void *ptr, size_t nbytes) 
 {
     ssize_t n;
   
