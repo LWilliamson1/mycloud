@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     struct sockaddr_in clientaddr;
     struct hostent *hp;
     char *haddrp;
-    
+    rio_t received; 
     size_t n;
     char buf[MAXLINE];
     rio_t rio;
@@ -46,7 +46,8 @@ int main(int argc, char **argv)
 	bytes_received = Rio_readn(connfd, &request_type, sizeof(unsigned int));
         int status = 0;
         request_type = ntohl(request_type);
-        if (secret_key != server_secret_key) {
+       	printf("rt = %i\n", request_type);
+	 if (secret_key != server_secret_key) {
             status = -1;
         }
 		if (request_type == 0){
@@ -86,11 +87,11 @@ int main(int argc, char **argv)
 int get(connfd){
     int bytes_received, status;
     char buf[MAXLINE];
-    memset(buf, '0', MAXLINE);
+    memset(buf, '\0', MAXLINE);
     
     status = 0;
     
-    bytes_received = read(connfd, buf, 80);
+    bytes_received = Rio_readn(connfd, buf, 80);
     FILE *fp = fopen(buf, "rb");
     if(fp==NULL){status = -1;}
     
@@ -119,6 +120,41 @@ int get(connfd){
 
 //stubs for stuff
 int put(connfd){
+	int bytes_received = 0;
+        char buff[MAXLINE];
+	rio_t rio;
+
+        //memset(buff, '0', sizeof(buff));
+       // FILE *fp = fopen(filename, "w");
+      //  ssize_t bytes_received; 
+	int status = 0;; 
+
+	bytes_received = Rio_readn(connfd, buff, 80);
+        FILE *fp = fopen(buff, "w");
+        if(fp==NULL){status = -1;}
+	printf("Filename = %s\n", buff);
+	Rio_readinitb(&rio, connfd);
+/*
+	if(NULL == fp)
+        {
+                printf("Error opening file \n");
+                return -1;
+        }
+        //Rio_writen(clientfd, &secretKey, sizeof(unsigned int));
+
+        //Rio_writen(clientfd, &requestType, sizeof(unsigned int));
+
+        //Rio_writen(clientfd, filename, 80); */
+	char buff2[MAXLINE];
+        while((bytes_received = Rio_readnb(&rio, buff2, 1)) > 0)
+        {
+	//	printf("Buff: %s\n", buff);
+	//	Rio_readn(connfd, buff, MAXLINE);
+                fwrite(buff2, 1, 1 , fp);
+                Fputs(buff2, stdout);
+		fflush(stdout);
+        }
+	printf("After While");	
 	return 0;
 }
 
