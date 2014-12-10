@@ -1,5 +1,5 @@
-// mcput.c
-// Created by Larry Williamson and Grant Garrett on 12/9/14
+// mcdel.c
+// Created by Larry Williamson and Grant Garrett on 12/10/14
 #include "csapp.h"
 #define BUF_SIZE 256
 
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 	host = argv[1];
 	port = atoi(argv[2]);
 	unsigned int secretKey = htonl(atoi(argv[3]));
-	unsigned int requestType = htonl(1);
+	unsigned int requestType = htonl(2);
 	strcpy(filename, argv[4]);
 	clientfd = Open_clientfd(host, port);
 
@@ -27,22 +27,6 @@ int main(int argc, char **argv)
 	//memset(buff, '0', sizeof(buff));
 
 	Rio_writen(clientfd, &secretKey, sizeof(unsigned int));
-
 	Rio_writen(clientfd, &requestType, sizeof(unsigned int));
-
 	Rio_writen(clientfd, filename, 80);
-	
-	while (fgets(buff, BUF_SIZE, stdin) != NULL)
-	{
-		Rio_writen(clientfd, buff, strlen(buff));
-	}
-	
-	
-	unsigned int status;
-	Rio_readn(clientfd, &status, sizeof(unsigned int));
-	if (status != 0){
-		printf("Error\n");
-	}
-	Close(clientfd);
-	exit(0);
 }
