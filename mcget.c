@@ -1,4 +1,4 @@
-// server.c
+// mcget.c
 // Created by Larry Williamson and Grant Garrett on 12/8/14.
 #include "csapp.h"
 #define BUF_SIZE 256
@@ -45,12 +45,12 @@ int main(int argc, char **argv)
 	Fputs("\n", stdout);
 	unsigned int status;
 	Rio_readn(clientfd, &status, sizeof(unsigned int));
-		if (status != 0){
-		printf("Error!!!!!\n");
+	if (status != 0){
+		printf("Error\n");
 	}
 	if(bytesReceived < 0)
 	{
-		printf("Error \n");
+		printf("Error\n");
 		return -1;
 	}
 
