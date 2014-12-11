@@ -33,6 +33,9 @@ int main(int argc, char **argv)
 	char buff[100240];
 	char cGet;
 	unsigned int buffsize;
+
+
+
 	while (fread(&cGet, 1, 1, stdin) > 0 )
 	{
 		buff[buffsize] = cGet;

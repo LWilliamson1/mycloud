@@ -141,7 +141,7 @@ int put(connfd){
 
 	if(check_key() == -1) {return -1;}
 
-        FILE *fp = fopen(buff, "w");
+        FILE *fp = fopen(buff, "wb");
         if(fp==NULL){status = -1;}
 
 
@@ -186,8 +186,9 @@ int put(connfd){
         while(i < size)
 	{
 
-		bytes_received = Rio_readnb(&rio, buff2, 1);
-	//	printf("Buff: %s\n", buff);
+//		bytes_received = Rio_readn(&rio, buff2, 1);
+		bytes_received = Rio_readn(connfd, buff2, 1);
+		printf("Buff: %s\n", buff);
 	//	Rio_readn(connfd, buff, MAXLINE);
                 fwrite(buff2, 1, 1 , fp);
 		i++;
