@@ -30,24 +30,28 @@ int main(int argc, char **argv)
 /* end parameter send	*/
 
 /*	send stdin data to server	*/
-	char buff[BUF_SIZE];
-	while (fgets(buff, BUF_SIZE, stdin) != NULL)
+	char buff[100240];
+	char cGet;
+	unsigned int buffsize;
+	while (fread(&cGet, 1, 1, stdin) > 0 )
 	{
-		Rio_writen(clientfd, buff, strlen(buff));
+		buff[buffsize] = cGet;
+		buffsize += 1;
 	}
+	buffsize = htonl(buffsize);
+	Rio_writen(clientfd, &buffsize, sizeof(unsigned int));
+	Rio_writen(clientfd, buff, strlen(buff));
 /*	end data send	*/
 
 /*	get return status and end connection	*/
 	unsigned int status;
 	Rio_readn(clientfd, &status, sizeof(unsigned int));
-	if (status == 0)
+	/*
+	if (status != 0)
 	{
-		printf("Error putting to server.\n");
+		printf("Error\n");
 	}
-	else
-	{
-		printf("Successfully put to server.\n");
-	}
+	*/
 	Close(clientfd);
 	exit(0);
 /*	connection closed	*/

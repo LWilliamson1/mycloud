@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 	host = argv[1];
 	port = atoi(argv[2]);
 	secretKey = htonl(atoi(argv[3]));
-	requestType = htonl(1);
+	requestType = htonl(3);
 	clientfd = Open_clientfd(host, port);
 /*	end connection setup	*/
 
@@ -28,9 +28,8 @@ int main(int argc, char **argv)
 /* end parameter send	*/
 
 /* receive file names from server	*/
-	int bytesReceived = 0;
 	char buff[BUF_SIZE];
-	while((bytesReceived = Rio_readn(clientfd, buff, BUF_SIZE)) > 0)
+	while(Rio_readn(clientfd, buff, BUF_SIZE) > 0)
 	{
 		printf("%s", buff);
 	}
@@ -39,15 +38,12 @@ int main(int argc, char **argv)
 /* get return status and end connection	*/
 	unsigned int status;
 	Rio_readn(clientfd, &status, sizeof(unsigned int));
-	if(bytesReceived < 0)
+	/*
+	if (status != 0)
 	{
-		printf("Error.\n");
-		return -1;
+		printf("Error\n");
 	}
-	if (status == 0)
-	{
-		printf("Error listing from server.\n");
-	}
+	*/
 	Close(clientfd);
 	exit(0);
 /*	connection closed	*/

@@ -10,3 +10,4 @@ Grant Garrett
 -mcdel.c
 -server.c
 -makefile
+-documentation.txt

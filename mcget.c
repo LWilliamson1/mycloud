@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 	Rio_writen(clientfd, &secretKey, sizeof(unsigned int));
 	Rio_writen(clientfd, &requestType, sizeof(unsigned int));
 	// check file before sending to server
-	FILE *fp = fopen(filename, "w");
+	FILE *fp = fopen(filename, "w+");
 	if (fp == NULL)
 	{
 		printf("Error opening file\n");
@@ -36,30 +36,31 @@ int main(int argc, char **argv)
 	Rio_writen(clientfd, filename, 80);
 /* end parameter send	*/
 
-/*	pull data from server	*/
-	int bytesReceived = 0;
+/*	pull data from server and print 	*/
 	char buff[BUF_SIZE];
-	//memset(buff, '\0', sizeof(buff));
+	int bytesReceived;
 	while((bytesReceived = Rio_readn(clientfd, buff, BUF_SIZE)) > 0)
 	{
 		fwrite(buff, 1, bytesReceived, fp);
-		Fputs(buff, stdout);
 	}
+	rewind(fp);
+	while (fgets(buff, BUF_SIZE, fp) != NULL)
+	{
+		printf("%s", buff);
+	}	
 /*	end data pull	*/
 
 /* get return status and end connection	*/
 	unsigned int status;
 	Rio_readn(clientfd, &status, sizeof(unsigned int));
-	if(bytesReceived < 0)
-	{
-		printf("Error.\n");
-		return -1;
-	}
-	if (status == -1)
-	{
-		printf("Error getting from server.\n");
-	}
 	fclose(fp);
+	/*
+	if (status != 0)
+	{
+		printf("Error\n");
+		remove(filename);
+	}
+	*/
 	Close(clientfd);
 	exit(0);
 /*	connection closed	*/

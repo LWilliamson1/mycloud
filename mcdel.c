@@ -32,14 +32,12 @@ int main(int argc, char **argv)
 /*	get return status and end connection	*/
 	unsigned int status;
 	Rio_readn(clientfd, &status, sizeof(unsigned int));
-	if (status == 0)
+	/*
+	if (status != 0)
 	{
-		printf("Error deleting from server.\n");
+		printf("Error\n");
 	}
-	else
-	{
-		printf("Successfully deleted from server.\n");
-	}
+	*/
 	Close(clientfd);
 	exit(0);
 /*	connection closed	*/

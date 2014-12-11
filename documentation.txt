@@ -1,0 +1,14 @@
+My Cloud File Storage
+
+
+This is a simple client/server program that takes four different commands: get, del, put and list.
+
+"get" will get data from the server and store into a file specified by the user. It also prints it out the stdout.
+
+"del" will delete a file specified by the user.
+
+"put" will take data from stdin and store in into a file on the server.
+
+"list" will list all of the files curretly on the server.
+
+The server application will stay open until closed by the server user. The client closes its connection after every task.
