@@ -3,13 +3,13 @@
 #include "csapp.h"
 
 char files[20][80]={""};
-
+unsigned int secret_key, server_secret_key;
 void echo(int connfd);
 
 int main(int argc, char **argv)
 {
     int listenfd, connfd, port;
-    unsigned int server_secret_key, secret_key;
+    //unsigned int server_secret_key, secret_key;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;
     struct hostent *hp;
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
         
         haddrp = inet_ntoa(clientaddr.sin_addr);
         
-        printf("server connected to %s (%s)\n", hp->h_name, haddrp);
+ //       printf("server connected to %s (%s)\n", hp->h_name, haddrp);
         
         unsigned int request_type;
 	int bytes_received;
@@ -47,41 +47,49 @@ int main(int argc, char **argv)
 	bytes_received = Rio_readn(connfd, &request_type, sizeof(unsigned int));
         int status = 0;
         request_type = ntohl(request_type);
-	 if (secret_key != server_secret_key) {
-            status = -1;
+	secret_key != server_secret_key;
+
+/*	if (secret_key != server_secret_key) {
+	    status = -1;
         }
-		if (request_type == 0){
+*/		if (request_type == 0){
 			printf("Request Type = get\n");
-			if (status == 0)
 			status = get(connfd);
 		}
-		else if (request_type == 1 && status == 0){
+		else if (request_type == 1){
 			printf("Request Type = put\n");
-			if (status == 0)
 			status = put(connfd);
 		}
-		else if (request_type == 2 && status == 0){
+		else if (request_type == 2){
 			printf("Request Type = del\n");
-			if (status == 0)
 			status = del(connfd);
 		}
-		else if (request_type == 3 && status == 0){
+		else if (request_type == 3){
 			printf("Request Type = list\n");
-			if (status == 0){
-				status = list(connfd);
-			}
+			status = list(connfd);
+		}
+	//	unsigned int stat1 = htonl(status);
+	//	printf("stat = %i", status);
 		write(connfd, &status, sizeof(status));
-        }
+        
         if (status == 0){
-            printf("Operation Status = Success\n");    
+            printf("Operation Status = success\n");    
         }
         else{
-            printf("Operation Status = Error\n");
+            printf("Operation Status = error\n");
         }
         printf("--------------------------\n");
         Close(connfd);
     }
     exit(0);
+}
+
+int check_key(){
+	if(secret_key == server_secret_key)
+	{
+		return 0;
+	}
+	return -1;
 }
 
 int get(connfd){
@@ -92,10 +100,10 @@ int get(connfd){
     status = 0;
     
     bytes_received = Rio_readn(connfd, buf, 80);
+    printf("Filename = %s\n", buf); 
     FILE *fp = fopen(buf, "rb");
-    if(fp==NULL){status = -1;}
-    
-    printf("Filename = %s\n", buf);
+    if(fp==NULL){return -1;}
+    if(check_key() == -1) {return -1;} 
     
     while (1) {
         unsigned char buf[100240]={0};
@@ -109,12 +117,12 @@ int get(connfd){
         if (data < 100240)
         {
             if (ferror(fp)){
-                status = -1;
+                return -1;
             }
             break;
         }
     }
-    return status;
+    return 0;
 }
 
 
@@ -128,19 +136,24 @@ int put(connfd){
        // FILE *fp = fopen(filename, "w");
       //  ssize_t bytes_received; 
 	int status = 0; 
-
 	bytes_received = Rio_readn(connfd, buff, 80);
+	printf("Filename = %s\n", buff);
+
+	if(check_key() == -1) {return -1;}
+
         FILE *fp = fopen(buff, "w");
         if(fp==NULL){status = -1;}
-	printf("Filename = %s\n", buff);
 
 
         int i = 0;
-
+	
         while(i < 20)
         {
 		//printf("strlen = %i\n",(int)strlen(files[i]));
-                if(strlen(files[i]) == 0)
+                if(strcmp(files[i], buff)==0){
+			break;
+		}
+		if(strlen(files[i]) == 0)
                 {
 			strcpy(files[i], buff);
 			//printf("file: %s\n",files[i]);
@@ -149,12 +162,10 @@ int put(connfd){
 		i++;
         }
 
-/*	unsigned int size, bytes;
+	int size, bytes;
 	bytes = Rio_readn(connfd, &size, sizeof(unsigned int));
-	printf("size: %i\n", size);
 	size = ntohl(size);
-	printf("size: %i\n", size);
-	Rio_readinitb(&rio, connfd);*/
+	Rio_readinitb(&rio, connfd);
 /*
 	if(NULL == fp)
         {
@@ -167,20 +178,21 @@ int put(connfd){
 
         //Rio_writen(clientfd, filename, 80); */
 
-/*	char buff2[MAXLINE];
-        while((bytes_received = Rio_readnb(&rio, buff2, 1)) > 0)
-        {
+	
+
+	char buff2[MAXLINE];
+	i = 0;
+       // while((bytes_received = Rio_readnb(&rio, buff2, 1)) > 0)
+        while(i < size)
+	{
 
 		bytes_received = Rio_readnb(&rio, buff2, 1);
-		printf("rio readn = %i\n", bytes_received);
 	//	printf("Buff: %s\n", buff);
 	//	Rio_readn(connfd, buff, MAXLINE);
                 fwrite(buff2, 1, 1 , fp);
-                Fputs(buff2, stdout);
-		fflush(stdout);
+		i++;
 	}
-*/	
-	printf("After While\n");	
+	
 	fclose(fp);
 	return 0;
 }
@@ -189,9 +201,13 @@ int del(connfd){
 	int status =0;
 	char buff[MAXLINE];
 	int bytes_received = Rio_readn(connfd, buff, 80);
-	printf("buff =  %s\n",buff);
+	
+	printf("Filename = %s\n", buff);
+	
+	if(check_key() == -1) {return -1;}
+
 	if(remove(buff) != 0){
-		status = -1;
+		return -1;
 	}
 
 	int i = 0;
@@ -207,16 +223,22 @@ int del(connfd){
 		strcpy(files[index], files[index+1]);
 		index++;
 	}
-	return status;
+	return 0;
 }
 
 int list(connfd){
 	int i, status;
 	char buff[MAXLINE];
+	printf("Filename = NONE\n");
+	if(check_key() == -1) {return -1;}
 	i = 0;
+	if(strlen(files[0])==0){
+		return 0;
+	}
+	
 	while(strlen(files[i]) != 0 && i < 20)
 	{
-		printf("%s\n", files[i]);
+		//printf("files: %s\n", files[i]);
 		Rio_writen(connfd, files[i], strlen(files[i]));
 		Rio_writen(connfd, "\n", strlen("\n"));
 		i++;
